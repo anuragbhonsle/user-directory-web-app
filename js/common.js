@@ -1,22 +1,29 @@
 const API = "https://jsonplaceholder.typicode.com";
 
-// read ?userId=1 style params (replaces useParams)
+// Read ?userId=1 style parameters
 function getParam(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
 
-// escape text before inserting into HTML
+// Escape text before inserting into HTML
 function esc(str) {
-  return $("<div>").text(str == null ? "" : str).html();
+  return $("<div>")
+    .text(str == null ? "" : str)
+    .html();
 }
 
-function getInitials(name) {
-  return name.split(" ").map(function (n) { return n[0]; }).slice(0, 2).join("").toUpperCase();
-}
+// "Leanne Graham" -> { first: "Leanne", last: "Graham" }
+function splitName(fullName) {
+  const parts = fullName.split(" ").filter(Boolean);
 
-// draw <i data-lucide="..."> placeholders as SVG icons
-function icons() {
-  if (window.lucide) lucide.createIcons();
+  if (parts.length > 1 && /^(mr|mrs|ms|miss|dr|prof)\.?$/i.test(parts[0])) {
+    parts.shift();
+  }
+
+  return {
+    first: parts[0] || "",
+    last: parts.slice(1).join(" "),
+  };
 }
 
 function showLoading() {
@@ -25,14 +32,18 @@ function showLoading() {
 
 function showError(message, retryFn, retryLabel) {
   $("#app").html(
-    '<div class="center"><div class="error-card">' +
-      '<div class="error-icon"><i data-lucide="alert-triangle" class="i6"></i></div>' +
+    '<div class="center">' +
+      '<div class="error-card">' +
       '<p class="error-title">Something went wrong</p>' +
-      '<p class="error-text">' + esc(message) + "</p>" +
-      '<button id="retry" class="btn-primary"><i data-lucide="rotate-cw" class="i4"></i> ' +
-      esc(retryLabel || "Retry") + "</button>" +
-    "</div></div>"
+      '<p class="error-text">' +
+      esc(message) +
+      "</p>" +
+      '<button id="retry" class="btn-primary">' +
+      esc(retryLabel || "Retry") +
+      "</button>" +
+      "</div>" +
+      "</div>",
   );
-  icons();
+
   $("#retry").on("click", retryFn);
 }
